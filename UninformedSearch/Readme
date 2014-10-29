@@ -1,3 +1,5 @@
+Program performs the following heuristic based searches:
+
 (1) Breadth-first search
 (2) Depth-first search
 (3) Uniform-cost search
