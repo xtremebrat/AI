@@ -1,4 +1,4 @@
-The code you does the following:
+The code does the following:
 
 (1) Uses the A* search algorithm to plan a path from the starting city to the goal city.
 It must use the plan vector (as illustrated in the provided Project2-Control.h code)
