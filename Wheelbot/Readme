@@ -1,0 +1,24 @@
+The code you does the following:
+
+(1) Uses the A* search algorithm to plan a path from the starting city to the goal city.
+It must use the plan vector (as illustrated in the provided Project2-Control.h code)
+to visualize the current plan as a green path from the start city to the goal city. The
+cost of traveling from one city to another is simply the distance between the two city
+points. For a heuristic, you may use the straight-line distance between a city and the
+goal city. As discussed in class, this is always an admissible and consistent heuristic.
+
+(2) If you encounter an obstacle on the way to the goal (which your range sensor will
+indicate), then you must return to the most recent node (city) you visited and plan
+an alternate least cost path to the goal. The city from which you plan becomes your
+new start city. You must update the graph object (this->g) to indicate that the
+path just tried is not viable. Thus, your A* implementation must be able to plan a
+least-cost path from any city to any other city on any randomly generated map and
+must handle updates to the map between A* calls.
+
+(3) If you have tried every possible path to the goal, you should be able to detect the fact
+that there are no possible paths to the goal (due to obstacles). When you encounter
+this situation, you should stop and print out an error message to the screen, such as
+"Failure: No possible path to goal."
+
+(4) If you successfully reach the goal, you should stop and print out a success message
+to the screen, such as "Success!"
