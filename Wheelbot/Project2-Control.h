@@ -29,6 +29,55 @@
 #include <utility>
 using namespace std;
 
+//function decalrations
+
+class Stack {
+   int MaxStack;
+   int EmptyStack;
+   int top;
+   int* items;
+public:
+   Stack(int);
+   ~Stack();
+   void push(int);
+   int pop();
+   int empty();
+   int full();
+};
+
+Stack::Stack(int size) {
+   MaxStack = size;
+   EmptyStack = -1;
+   top = EmptyStack;
+   items = new int[MaxStack];
+}
+
+Stack::~Stack() {delete[] items;}
+
+void Stack::push(int c) {
+   items[++top] = c;
+}
+
+int Stack::pop() {
+   return items[top--];
+}
+
+int Stack::full()  {
+   return top + 1 == MaxStack;
+}
+
+int Stack::empty()  {
+   return top == EmptyStack;
+}
+
+
+PxReal getDist(PxVec3 src,PxVec3 dest)
+		{
+			PxReal distd = sqrt(pow(src.x-dest.x,2)+pow(src.z-dest.z,2));
+			return distd;
+
+		}
+
 ///DO NOT MODIFY-------------------------------------------//
 //Possible Wheelbot actions
 enum WheelbotActions {
@@ -233,35 +282,85 @@ public:
         ////   a. You reach the final goal city. In this case, you should stop and declare "Success"
         ////   b. You have exhausted all possible paths to the goal city and all are blocked. In this case, you
         ////   should stop and declare "Failure".
+
+		Stack olist(100),clist(100),eList(100);
+		PxReal *gl,*fl,*hl; int *ed,*sec;
+		int i,j,k;
+		int x,y,nextStep=0;
+
         
         //Check to see if I have planned yet. I don't want to plan each time step is called, only when I
         //am done executing my plan or when an obstacle forces me to replan.
         if (!havePlanned) {
-            //Make sure currentPlanStep is reset
+			plan.clear();
+			olist.push(start);
             currentPlanStep = 0;
+			currentPlanStep++;
             //Set the flag to true, so we know we have planned and are going to start executing
             havePlanned  = true;
             //Push the start node onto the plan
-            plan.push_back(g.graphPoints[start]);
+			while(!olist.empty())
+			{
+				int cur = olist.pop();
+            plan.push_back(g.graphPoints[cur]);
             //Determine the actions available from the start node
             vector<pair<int, int> > actions;
             //Loop through each edge
-            for (int i=0; i<g.graphEdges.size(); i++) {
+            for (int i=0; i<g.graphEdges.size(); i++) 
+			{
                 //If the first node is the start node, this
                 //edge is an "action" we can take from the start node, and
                 //we save it.
-                if (g.graphEdges[i].first == start) {
-                    actions.push_back(g.graphEdges[i]);
+                if (g.graphEdges[i].first == cur) 
+				{
+                    actions.push_back(g.graphEdges[i]); clist.push(g.graphEdges[i].second);eList.push(i);
                 }
             }
+
+			ed = new int(actions.size());
+			sec = new int(actions.size());
+
+			gl = new PxReal(actions.size());
+			fl = new PxReal(actions.size());
+			hl = new PxReal(actions.size());
+
+			for(i=0;i<actions.size();i++)
+			{
+				ed[i] = eList.pop();
+				sec[i] = clist.pop();
+			}
+
+			for(i=0;i<actions.size();i++)
+			{	
+				gl[i] = getDist(g.graphPoints[start],g.graphPoints[sec[i]]);
+				hl[i] = getDist(g.graphPoints[sec[i]],g.graphPoints[goal]);
+				fl[i] = gl[i] + hl[i];
+			}
+
+			PxReal min=fl[0];
+			for(i=1;i<actions.size();i++)
+			{
+				if(fl[i] <= min) { min=fl[i]; }
+			}
+
+			for(i=0;i<actions.size();i++)
+			{
+				if(min == fl[i]) nextStep=sec[i];
+			}
+
+			if(nextStep != goal) olist.push(nextStep); 
+			else { cout<<"GOAL REACHED"<<endl<<endl; havePlanned = true; }
+
             //Choose a random action out of the set of available ones
-            int nextStep = rand() % actions.size();
-            currentPlanStep++;
+            //int nextStep = rand() % actions.size();
+            
             //Add the map node resulting from the selected action to the plan.
-            plan.push_back(g.graphPoints[actions[nextStep].second]);
+            plan.push_back(g.graphPoints[nextStep]);
             //Set the chosen action's node as the current goal position to traverse the edge
             currentGoalPosition = plan[currentPlanStep];
         }
+			
+		}
         
         
         //Check our raycast sensor
