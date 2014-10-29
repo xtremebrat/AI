@@ -1,0 +1,5 @@
+This program determines the next move using the following algorithms:
+
+1 Greedy 
+2 Minimax 
+3 Alpha-Beta 
